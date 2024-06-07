@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF Merger</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato">
+    <style>
+        body {
+            font-family: 'Lato', sans-serif;
+        }
+    </style>
+</head>
+<body>
+    <h1>Merge PDF Files</h1>
+    <form id="pdfMergeForm">
+        <input type="file" name="pdfs" multiple required>
+        <br><br>
+        <label for="fileName">Output File Name (without extension):</label>
+        <input type="text" id="fileName" name="fileName" required>
+        <br><br>
+        <button type="submit">Merge PDFs</button>
+    </form>
+    <script nonce="<%= nonce %>">
+        document.getElementById('pdfMergeForm').addEventListener('submit', async (event) => {
+            event.preventDefault();
+
+            const form = event.target;
+            const formData = new FormData(form);
+            const fileName = document.getElementById('fileName').value;
+
+            try {
+                const response = await fetch(`/merge?fileName=${encodeURIComponent(fileName)}`, {
+                    method: 'POST',
+                    body: formData,
+                });
+
+                if (response.ok) {
+                    const blob = await response.blob();
+                    const downloadUrl = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = downloadUrl;
+                    a.download = `${fileName}.pdf`;
+                    document.body.appendChild(a);
+                    a.click();
+                    a.remove();
+                    window.URL.revokeObjectURL(downloadUrl); // Clean up URL.createObjectURL
+                } else {
+                    console.error('Error merging PDFs:', response.statusText);
+                }
+            } catch (error) {
+                console.error('Error merging PDFs:', error);
+            }
+        });
+    </script>
+</body>
+</html>

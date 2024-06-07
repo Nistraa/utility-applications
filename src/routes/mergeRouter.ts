@@ -1,10 +1,11 @@
 import { Router } from 'express';
 import { mergePdfFiles } from '../services/mergeServices';
 import multer from 'multer';
+import path from 'path';
 
 const router = Router();
 
-const upload = multer ({ dest: 'src/uploads/'});
+const upload = multer ({ dest: path.join(__dirname, '..', 'uploads')});
 
 router.post('/', upload.array('pdfs'), async (req, res) => {
     const fileName = req.query.fileName as string;
